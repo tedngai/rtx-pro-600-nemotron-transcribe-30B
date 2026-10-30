@@ -24,7 +24,7 @@ The publisher's BF16 checkpoint is the reference this card's recipe targets. At 
 | --- | --- |
 | Model | `nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B` @ `a99e33f…` (62.88 GiB BF16) |
 | Architecture | Mamba-2–Transformer hybrid MoE + Parallel Expert Encoder (ASR + speaker) |
-| Engine | vLLM 0.32.0 + NeMo Speech main (`nemo_speechlm` plugin) @ `548fd86…`, uv-locked py3.13 env per the card, torch 2.11.0+cu129, flashinfer 0.7.0.post1 |
+| Engine | vLLM 0.32.0 + NeMo Speech main (`nemo_speechlm` plugin) @ `548fd86…`, uv-locked py3.13 env per the card, torch 2.13.0+cu130, flashinfer 0.7.0.post1 |
 | Image | `nemotron-transcribe:v0.32.0-nemo`, built from `docker/Dockerfile` (no upstream digest exists; the Dockerfile is the pinned contract) |
 | Served context | 65,536 tokens; recordings up to 1 hour (`VLLM_MAX_AUDIO_DECODE_DURATION_S=3600`) |
 | Speculative decoding | MTP8 (`{"method":"mtp","num_speculative_tokens":8}`) |

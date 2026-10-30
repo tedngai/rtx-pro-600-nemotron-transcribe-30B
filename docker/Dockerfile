@@ -3,8 +3,12 @@
 # Replicates the model card's Environment Setup verbatim: vLLM 0.32.0 and the
 # NeMo Speech main branch (which provides the nemo_speechlm vLLM plugin) in one
 # uv-locked Python 3.13 environment, plus PyAV (compressed-audio decode) and
-# OpenCV (a vLLM requirement NeMo excludes). The uv.lock pins
-# torch 2.11.0+cu129 and flashinfer-python 0.7.0.post1, both Blackwell-ready.
+# OpenCV (a vLLM requirement NeMo excludes). The uv.lock resolves torch
+# 2.13.0+cu130 for py3.13/linux and flashinfer-python 0.7.0.post1.
+#
+# The runtime needs a C/C++ toolchain: Triton compiles its CUDA driver module
+# at import time, torch.compile/Inductor builds flex_attention kernels, and
+# FlashInfer JIT-compiles its kernels unless precompiled cubins exist.
 FROM ubuntu:22.04
 
 # Pinned NeMo Speech revision; a new ref is a new baseline.
@@ -12,7 +16,7 @@ ARG NEMO_SPEECH_REF=548fd8665b8e0cb7ad0d1f58adfec7489fda1d09
 
 # uv comes from PyPI: ghcr.io is not reachable from this host.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates git curl python3 python3-pip \
+ && apt-get install -y --no-install-recommends ca-certificates git curl python3 python3-pip build-essential \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 install --no-cache-dir uv
 
@@ -32,7 +36,11 @@ RUN uv venv --python 3.13 .venv \
  && uv pip install --python .venv/bin/python --no-deps -e . \
  && uv pip install --python .venv/bin/python --no-deps av==19.0.2 opencv-python-headless==5.0.0.93
 
-ENV PATH="/opt/nemo-speech/.venv/bin:${PATH}" \
+# torch 2.13's cu130 wheels bundle a complete CUDA 13 toolkit (nvcc, headers,
+# libcudart) under nvidia/cu13; point CUDA_HOME at it so FlashInfer's JIT can
+# compile kernels. ninja ships in the venv.
+ENV PATH="/opt/nemo-speech/.venv/lib/python3.13/site-packages/nvidia/cu13/bin:/opt/nemo-speech/.venv/bin:${PATH}" \
+    CUDA_HOME="/opt/nemo-speech/.venv/lib/python3.13/site-packages/nvidia/cu13" \
     VLLM_PLUGINS=nemo_speechlm \
     VLLM_MAX_AUDIO_DECODE_DURATION_S=3600 \
     VLLM_MAX_AUDIO_CLIP_FILESIZE_MB=180 \

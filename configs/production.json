@@ -15,7 +15,7 @@
     "name": "vLLM + NeMo Speech plugin (nemo_speechlm)",
     "version": "vLLM 0.32.0, NeMo Speech @ 548fd8665b8e0cb7ad0d1f58adfec7489fda1d09",
     "image": "nemotron-transcribe:v0.32.0-nemo",
-    "image_source": "docker/Dockerfile (built locally; replicates the model card's uv-locked environment: torch 2.11.0+cu129, flashinfer 0.7.0.post1)",
+    "image_source": "docker/Dockerfile (built locally; replicates the model card's uv-locked environment: torch 2.13.0+cu130, flashinfer 0.7.0.post1)",
     "note": "No upstream digest exists for this stack; the Dockerfile is the pinned contract."
   },
   "serving": {
