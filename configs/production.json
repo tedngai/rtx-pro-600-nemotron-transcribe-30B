@@ -1,0 +1,53 @@
+{
+  "profile": "production",
+  "frozen_at": "2026-10-29",
+  "model": {
+    "repo": "nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
+    "revision": "a99e33f698257b8b69ca7834f19c73582eb1fa7e",
+    "architecture": "Nemotron 3.5 Lightning hybrid Mamba-2-Transformer MoE with Parallel Expert Encoder (ASR + speaker), 34B total / 4.3B active",
+    "precision": "BF16 (publisher checkpoint; FP8 and NVFP4 variants exist)",
+    "weights_gib": 62.88,
+    "local_dir": "models/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
+    "checkpoint_context": 65536,
+    "license": "OpenMDW-1.1"
+  },
+  "engine": {
+    "name": "vLLM + NeMo Speech plugin (nemo_speechlm)",
+    "version": "vLLM 0.32.0, NeMo Speech @ 548fd8665b8e0cb7ad0d1f58adfec7489fda1d09",
+    "image": "nemotron-transcribe:v0.32.0-nemo",
+    "image_source": "docker/Dockerfile (built locally; replicates the model card's uv-locked environment: torch 2.11.0+cu129, flashinfer 0.7.0.post1)",
+    "note": "No upstream digest exists for this stack; the Dockerfile is the pinned contract."
+  },
+  "serving": {
+    "tensor_parallel_size": 1,
+    "served_model_name": "pratt-transcribe",
+    "host_port": 8013,
+    "bind_addr": "0.0.0.0",
+    "require_api_key": false,
+    "max_model_len": 65536,
+    "max_num_seqs": 192,
+    "max_num_batched_tokens": 4096,
+    "gpu_memory_utilization": 0.94,
+    "dtype": "bfloat16",
+    "enable_prefix_caching": false,
+    "enable_chunked_prefill": true,
+    "speculative_config": {"method": "mtp", "num_speculative_tokens": 8},
+    "mamba": {"use_replayssm": true, "backend": "flashinfer", "cache_mode": "none"},
+    "limit_mm_per_prompt": {"audio": {"count": 6, "length": 120000000}},
+    "reasoning_parser": "nemotron_v3",
+    "word_timestamps_middleware": "nemo.collections.speechlm2.vllm.salm.ctc_serving.ctc_timestamp_middleware"
+  },
+  "expected_config": {
+    "served_model_name": "pratt-transcribe",
+    "context_length": 65536
+  },
+  "host": {
+    "minimum_free_gib": 130,
+    "minimum_available_gib": 60,
+    "gpu": "RTX Pro 6000 Blackwell DC-4-96Q, MIG 4g.96gb slice of GPU 0 (MIG-b12c2fdf-03dc-5a04-8cbb-46624a8df192)"
+  },
+  "scope": {
+    "production_qualified": false,
+    "note": "Single-slice screening only. The card's optimized NIM kernels are not in the open-source release; expect roughly half the published NIM RTFx."
+  }
+}

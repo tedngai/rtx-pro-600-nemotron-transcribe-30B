@@ -1,0 +1,22 @@
+# Local state is never committed.
+.env
+.env.*
+!.env.example
+
+# Model weights (63 GiB) and caches.
+models/
+cache/
+
+# Build-time NeMo Speech clone (the Dockerfile re-clones the pinned ref).
+nemo-speech/
+
+# Logs, secrets and generated state.
+logs/
+secrets/
+state/
+
+# Harness scratch.
+.benchmark.lock
+__pycache__/
+*.pyc
+.venv/
