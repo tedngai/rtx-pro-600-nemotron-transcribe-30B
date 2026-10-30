@@ -68,6 +68,10 @@ args=(
   --reasoning-parser nemotron_v3
   --trust-request-mm-kwargs
   --middleware nemo.collections.speechlm2.vllm.salm.ctc_serving.ctc_timestamp_middleware
+  # FlashInfer's warmup autotune profiles kernel tactics after the KV cache has
+  # filled the slice to 0.94 (~2 GiB free) and OOMs; heuristics are used
+  # instead. This is the one deviation from the card's recipe (see README).
+  --kernel-config '{"enable_flashinfer_autotune": false}'
   --no-enable-log-requests
   --uvicorn-log-level warning
   "${auth_args[@]}"

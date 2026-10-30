@@ -23,6 +23,9 @@ parser.add_argument("--execute", action="store_true")
 parser.add_argument("--confirm-idle", action="store_true")
 parser.add_argument("--concurrency", type=int, default=1)
 parser.add_argument("--rounds", type=int, default=3)
+parser.add_argument("--fixture", default=None,
+                    help="audio fixture path relative to the workspace root "
+                         "(default: tests/fixtures/en-Alice_woman.wav)")
 args = parser.parse_args()
 
 if not args.execute or not args.confirm_idle:
@@ -30,13 +33,15 @@ if not args.execute or not args.confirm_idle:
 
 load_profile()  # fail fast on a missing profile
 client = Client()
-audio_seconds = client.audio_duration_seconds()
+audio_path = args.fixture or "tests/fixtures/en-Alice_woman.wav"
+audio_seconds = client.audio_duration_seconds(audio_path)
 
 rounds = []
 for index in range(args.rounds):
     started = time.perf_counter()
     with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
-        futures = [pool.submit(client.transcribe) for _ in range(args.concurrency)]
+        futures = [pool.submit(client.transcribe, audio_path=audio_path)
+                   for _ in range(args.concurrency)]
         results = [future.result()["elapsed_seconds"] for future in futures]
     wall = time.perf_counter() - started
     round_summary = {

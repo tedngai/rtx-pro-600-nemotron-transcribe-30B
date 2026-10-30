@@ -32,6 +32,8 @@
     "enable_prefix_caching": false,
     "enable_chunked_prefill": true,
     "speculative_config": {"method": "mtp", "num_speculative_tokens": 8},
+    "flashinfer_autotune": false,
+    "flashinfer_autotune_note": "Deviation: vLLM's FlashInfer warmup autotune runs after the KV cache fills the slice to 0.94 (~2 GiB free) and OOMs on this MIG partition; FlashInfer heuristics are used instead. Kernels and the flashinfer mamba backend are unchanged.",
     "mamba": {"use_replayssm": true, "backend": "flashinfer", "cache_mode": "none"},
     "limit_mm_per_prompt": {"audio": {"count": 6, "length": 120000000}},
     "reasoning_parser": "nemotron_v3",

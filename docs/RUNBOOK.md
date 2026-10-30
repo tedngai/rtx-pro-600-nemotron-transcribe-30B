@@ -88,9 +88,19 @@ stop the other first.
   the interpreter (`/root` is 0700 in ubuntu:22.04).
 - The runtime image needs `build-essential` plus `CUDA_HOME` pointing at torch's
   bundled `nvidia/cu13` toolkit: Triton compiles its CUDA driver module at
-  import, torch.compile/Inductor builds the encoder's flex_attention kernels,
-  and FlashInfer JIT-compiles kernels (no matching `flashinfer-cubin` exists for
-  0.7.0.post1). A slim base image crash-loops during `profile_run` without it.
+  import and torch.compile/Inductor builds the encoder's flex_attention kernels.
+  A slim base image crash-loops during `profile_run` without it.
+- FlashInfer kernels come from the precompiled `flashinfer-jit-cache`
+  `0.7.0.post1+cu130` wheel (`https://flashinfer.ai/whl/cu130`), while mamba SSU
+  kernels JIT-compile with the matching CUDA 13.0 nvcc from NVIDIA's apt repo.
+  JIT with torch's bundled nvcc 13.4 fails: it is paired with CUDA 13.0 headers,
+  which FlashInfer's bundled CCCL rejects as incompatible.
+- vLLM's FlashInfer warmup autotune profiles tactics after the KV cache has
+  filled the slice to `gpu-memory-utilization 0.94` (~2 GiB free) and OOMs
+  (surfacing as a `MemoryError: NVML_SUCCESS == r INTERNAL ASSERT` from torch's
+  allocator on MIG). `start.sh` passes
+  `--kernel-config '{"enable_flashinfer_autotune": false}'` so FlashInfer uses
+  heuristic tactics instead; kernels and backend selection are unchanged.
 - A daemon-side pull left running after a killed client can wedge the docker
   daemon silently (builds and `docker create` hang with no log output).
   Restarting dockerd clears it; d3-systemone has `restart=no` and must be

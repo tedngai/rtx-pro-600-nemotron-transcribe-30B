@@ -35,6 +35,8 @@ The publisher's BF16 checkpoint is the reference this card's recipe targets. At 
 
 `configs/production.json` is the frozen contract; `scripts/start.sh` assembles the flags.
 
+One deliberate deviation: `--kernel-config '{"enable_flashinfer_autotune": false}'`. vLLM runs its FlashInfer warmup autotune after the KV cache has filled the slice to `0.94` (~2 GiB free), and the tactic-profiling workspaces OOM on this MIG partition. Disabling it keeps the FlashInfer CUTLASS/TRTLLM MoE and mamba SSU kernels and only replaces per-shape tactic search with FlashInfer's heuristics. Everything else follows the card.
+
 ## Host prerequisites
 
 - Docker with the NVIDIA runtime or CDI spec.
@@ -77,7 +79,18 @@ curl http://<host>:8013/v1/chat/completions -H 'Content-Type: application/json' 
 
 ## Results
 
-Pending — see `evidence/` after the screen run.
+Full details in [`docs/RESULTS.md`](docs/RESULTS.md); reports in `evidence/`.
+Three-round medians, BF16 on the GPU 0 MIG slice, 2026-10-30:
+
+| Screen | Audio | Concurrency | Aggregate RTFx | Per-request RTFx |
+| --- | --- | --- | --- | --- |
+| `rtfx-c1` | 9.27 s | 1 | 48.1× | 48.6× |
+| `rtfx-c8` | 9.27 s | 8 | 199.0× | 25.2× |
+| `rtfx-c1-long` | 92.70 s | 1 | 93.9× | 95.2× |
+| `rtfx-c8-long` | 92.70 s | 8 | 371.1× | 48.8× |
+
+Smoke test: `/v1/models` contract exact (`pratt-transcribe`, 65,536 ctx), cold
+request 40.3 s (first-request warm-up), repeat 0.203 s, identical transcripts.
 
 ## Contents
 

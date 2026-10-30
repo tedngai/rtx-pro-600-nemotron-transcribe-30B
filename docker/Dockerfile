@@ -36,11 +36,31 @@ RUN uv venv --python 3.13 .venv \
  && uv pip install --python .venv/bin/python --no-deps -e . \
  && uv pip install --python .venv/bin/python --no-deps av==19.0.2 opencv-python-headless==5.0.0.93
 
+# Precompiled FlashInfer kernels matching flashinfer-python 0.7.0.post1+cu130.
+# torch 2.13 bundles nvcc 13.4 with CUDA 13.0 headers, a combination that
+# FlashInfer's CCCL compatibility check rejects; precompiled cubins skip JIT.
+RUN uv pip install --python /opt/nemo-speech/.venv/bin/python --upgrade \
+      --index-url https://flashinfer.ai/whl/cu130 \
+      flashinfer-jit-cache==0.7.0.post1+cu130
+
+# FlashInfer JIT-compiles some kernels on demand (e.g. the mamba SSU ops the
+# card's --mamba-backend flashinfer needs). torch's bundled cu13 toolkit pairs
+# nvcc 13.4 with CUDA 13.0 headers, which FlashInfer's CCCL check rejects, so
+# install a matching CUDA 13.0 compiler from NVIDIA's apt repository.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates wget gnupg2 \
+ && wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb \
+ && dpkg -i cuda-keyring_1.1-1_all.deb \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends cuda-nvcc-13-0 cuda-cudart-dev-13-0 \
+ && rm -f cuda-keyring_1.1-1_all.deb \
+ && rm -rf /var/lib/apt/lists/*
+
 # torch 2.13's cu130 wheels bundle a complete CUDA 13 toolkit (nvcc, headers,
 # libcudart) under nvidia/cu13; point CUDA_HOME at it so FlashInfer's JIT can
 # compile kernels. ninja ships in the venv.
-ENV PATH="/opt/nemo-speech/.venv/lib/python3.13/site-packages/nvidia/cu13/bin:/opt/nemo-speech/.venv/bin:${PATH}" \
-    CUDA_HOME="/opt/nemo-speech/.venv/lib/python3.13/site-packages/nvidia/cu13" \
+ENV PATH="/usr/local/cuda-13.0/bin:/opt/nemo-speech/.venv/bin:${PATH}" \
+    CUDA_HOME="/usr/local/cuda-13.0" \
     VLLM_PLUGINS=nemo_speechlm \
     VLLM_MAX_AUDIO_DECODE_DURATION_S=3600 \
     VLLM_MAX_AUDIO_CLIP_FILESIZE_MB=180 \

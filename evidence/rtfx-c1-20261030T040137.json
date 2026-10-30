@@ -1,0 +1,45 @@
+{
+  "label": "rtfx-c1",
+  "mode": "rtfx",
+  "concurrency": 1,
+  "rounds": 3,
+  "audio_seconds_per_request": 9.27,
+  "results": [
+    {
+      "round": 0,
+      "requests": 1,
+      "wall_seconds": 0.2,
+      "aggregate_rtfx": 46.27,
+      "per_request_rtfx": 46.79,
+      "latency_seconds_min": 0.198,
+      "latency_seconds_median": 0.198,
+      "latency_seconds_max": 0.198
+    },
+    {
+      "round": 1,
+      "requests": 1,
+      "wall_seconds": 0.193,
+      "aggregate_rtfx": 48.13,
+      "per_request_rtfx": 48.6,
+      "latency_seconds_min": 0.191,
+      "latency_seconds_median": 0.191,
+      "latency_seconds_max": 0.191
+    },
+    {
+      "round": 2,
+      "requests": 1,
+      "wall_seconds": 0.192,
+      "aggregate_rtfx": 48.25,
+      "per_request_rtfx": 48.69,
+      "latency_seconds_min": 0.19,
+      "latency_seconds_median": 0.19,
+      "latency_seconds_max": 0.19
+    }
+  ],
+  "summary": {
+    "median_aggregate_rtfx": 48.13,
+    "median_per_request_rtfx": 48.6
+  },
+  "executed_at": "2026-10-30T04:01:37Z",
+  "caveat": "Rounds reuse one fixture; the warm cache question does not apply because prefix caching is disabled for ReplaySSM. First requests after startup are slower (kernel warm-up)."
+}

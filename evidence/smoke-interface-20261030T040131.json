@@ -1,0 +1,26 @@
+{
+  "label": "smoke-interface",
+  "executed_at": "2026-10-30T04:01:31Z",
+  "checks": {
+    "model_card": {
+      "passed": true,
+      "served_model_name": "pratt-transcribe",
+      "max_model_len": 65536
+    },
+    "transcribe_cold": {
+      "passed": true,
+      "elapsed_seconds": 40.275,
+      "audio_seconds": 9.27,
+      "completion_tokens": 35,
+      "transcript_preview": "So just to clarify, we've had nineteen to twenty year olds on our podcast so far, and if you don't mind me asking, how old are you?"
+    },
+    "transcribe_repeat": {
+      "passed": true,
+      "elapsed_seconds": 0.203,
+      "identical_to_cold": true,
+      "transcript_preview": "So just to clarify, we've had nineteen to twenty year olds on our podcast so far, and if you don't mind me asking, how old are you?"
+    }
+  },
+  "error": null,
+  "passed": true
+}
